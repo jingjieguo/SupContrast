@@ -157,7 +157,7 @@ def set_loader(opt):
     if opt.dataset == 'cifar10':
         train_dataset = datasets.CIFAR10(root=opt.data_folder,
                                          transform=TwoCropTransform(train_transform),
-                                         download=True)
+                                         download=True)  # TwoCropTransform() returns two random augemented views of the original image
     elif opt.dataset == 'cifar100':
         train_dataset = datasets.CIFAR100(root=opt.data_folder,
                                           transform=TwoCropTransform(train_transform),

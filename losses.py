@@ -50,12 +50,13 @@ class SupConLoss(nn.Module):
             labels = labels.contiguous().view(-1, 1)
             if labels.shape[0] != batch_size:
                 raise ValueError('Num of labels does not match num of features')
-            mask = torch.eq(labels, labels.T).float().to(device)
+            mask = torch.eq(labels, labels.T).float().to(device) 
+            # actually the mask here above is the same as mask = torch.eye(batch_size, dtype=torch.float32).to(device)
         else:
             mask = mask.float().to(device)
 
-        contrast_count = features.shape[1]
-        contrast_feature = torch.cat(torch.unbind(features, dim=1), dim=0)
+        contrast_count = features.shape[1]  # contrast_count = n_views
+        contrast_feature = torch.cat(torch.unbind(features, dim=1), dim=0)  # contrast_feature with shape of [bsz * n_views, ...]
         if self.contrast_mode == 'one':
             anchor_feature = features[:, 0]
             anchor_count = 1
@@ -85,7 +86,7 @@ class SupConLoss(nn.Module):
         mask = mask * logits_mask
 
         # compute log_prob
-        exp_logits = torch.exp(logits) * logits_mask
+        exp_logits = torch.exp(logits) * logits_mask  # exclude out the self-contrast cases, namely in the denominator. it does not include i itself
         log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True))
 
         # compute mean of log-likelihood over positive
